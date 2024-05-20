@@ -172,7 +172,6 @@ void computerMove(char bd[3][3], char compSym) {
 	if (boardEmpty(bd)) {
 		bd[2][2] = compSym;
 	} else if (middleCheck(bd, compSym, opponentSym)) {
-	} else if (diagonalCheck(bd, compSym, opponentSym)) {
 	} else if (cornerCheck(bd, compSym)) {
 	} else {
 		pickRandom(bd, compSym);
