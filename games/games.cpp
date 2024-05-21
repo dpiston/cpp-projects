@@ -4,7 +4,7 @@
 #include <iostream>
 
 int main() {
-    // char game {};
+    char game {};
     bool play {true};
     do {
         std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
@@ -14,8 +14,8 @@ int main() {
         std::cout << "3) Tic Tac Toe\n";
         std::cout << "4) Exit\n";
         std::cout << "What would you like to play?\n";
-        // std::cin >> game;
-        switch ('3')
+        std::cin >> game;
+        switch (game)
         {
         case '1':
             rpsMain();

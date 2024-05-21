@@ -2,10 +2,12 @@
 #include <iostream>
 #include <limits> // for std::numeric_limits
 #include <random> // for std::random_device / std::mt19937 / std::uniform_int_distribution<>
-#include <algorithm> // for std::find
 #include <cctype> // for std::tolower
-#include <string_view> //for std::string_view
+#include <string> // for std::string
+#include <vector> // for std:vector
 #include <iomanip> // for std::left and std::setw
+#include <algorithm> // for std::find
+#include <string_view> //for std::string_view
 
 
 // Main menu when launching game
@@ -32,67 +34,9 @@ char rpsMenu() {
     return choice;
 }
 
-// Get some initial inputs based on play choice
-void initialization(char choice, std::string& p1n, std::string& p2n, int& loops) {
-    if (choice == '3') {
-        std::cout << "How many rounds would you like the computer to play?\n";
-        std::cout << "Number: ";
-        std::cin >> loops;
-        p1n = "Computer 1";
-        p2n = "Computer 2";
-    } else {
-        std::cout << "player 1 - Please enter your name: ";
-        std::getline(std::cin >> std::ws,p1n);
-        if (choice == '1') {
-            p2n = "The Computer";
-        } else if (choice == '2') {
-            std::cout << "Player 2 - Please enter your name: ";
-            std::getline(std::cin >> std::ws,p2n);
-        }
-    }
-}
-
-void getInputs(char playStyle, std::string p1n, char& p1c, std::string p2n, char& p2c) {
-    if (playStyle == '1') {
-        p1c = getPlayerInput(p1n);
-        p2c = getComputerInput();
-    } else if (playStyle == '2') {
-        p1c = getPlayerInput(p1n);
-        std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
-        p2c = getPlayerInput(p2n);
-    } else {
-        p1c = getComputerInput();
-        p2c = getComputerInput();
-    }
-}
-
-// Asks for and returns the player input
-char getPlayerInput(std::string name) {
-    char choice {};
-    char options[] {'r','p','s'};
-    std::cout << name <<"! Make your choice!\n";
-    do {
-        std::cout << "Enter 'r' for Rock, 'p' for Paper, or 's' for Scissors\n";
-        std::cout << "Choice: ";
-        std::cin >> choice;
-        choice = char(std::tolower(choice));
-    } while(!isValid(choice, options, sizeof(options)));
-
-    return choice;
-}
-
-char getComputerInput() {
-    char options[] {'r','p','s'};
-    std::random_device rd; // Use std::random_device to obtain a seed for the random number engine
-    std::mt19937 rng(rd()); // Use std::mt19937 as the random number engine (Mersenne Twister)
-    std::uniform_int_distribution<int> distribution(0, sizeof(options) - 1); // Uniform distribution over options array
-
-    return options[distribution(rng)];
-}
-
 // Input validation: checks if the given character is valid based on the options array
-bool isValid(char check, char options[], size_t size) {
-    if (std::cin.fail() || std::cin.peek() != '\n' || std::find(options, options + size, check) == options + size) {
+bool isValid(char check, std::vector<char> options) {
+    if (std::cin.fail() || std::cin.peek() != '\n' || std::find(options.begin(), options.end(), check) == options.end()) {
         std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
         std::cout << "Invalid input. Please enter a single character from the given options.\n";
         std::cin.clear(); // Reset error flags in std::cin
@@ -102,18 +46,45 @@ bool isValid(char check, char options[], size_t size) {
     return true;
 }
 
-std::string_view translate(char ch) {
-    switch (ch)
-        {
-        case 'r':
-            return "Rock";
-        case 'p':
-            return "Paper";
-        case 's':
-            return "Scissors";
-        default:
-            return "Unknown";
-        }
+std::string getName(std::string_view player) {
+    std::cout << player << " - Please enter your name: ";
+    std::string name{};
+    std::getline(std::cin >> std::ws,name);
+
+    return name;
+}
+
+int getLoops() {
+    int loops {};
+    std::cout << "How many rounds would you like the computer to play?\n";
+    std::cout << "Number: ";
+    std::cin >> loops;
+
+    return loops;
+}
+
+// Asks for and returns the player input
+char getPlayerInput(std::string name) {
+    char input {};
+    std::vector<char> validOptions {'r','p','s'};
+    std::cout << name <<"! Make your choice!\n";
+    do {
+        std::cout << "Enter 'r' for Rock, 'p' for Paper, or 's' for Scissors\n";
+        std::cout << "Choice: ";
+        std::cin >> input;
+        input = char(std::tolower(input));
+    } while(!isValid(input, validOptions));
+
+    return input;
+}
+
+char getComputerInput() {
+    std::vector<char> options {'r','p','s'};
+    std::random_device rd; // Use std::random_device to obtain a seed for the random number engine
+    std::mt19937 rng(rd()); // Use std::mt19937 as the random number engine (Mersenne Twister)
+    std::uniform_int_distribution<long long unsigned int> distribution(0, options.size() - 1); // Uniform distribution over options array
+
+    return options[distribution(rng)];
 }
 
 // Compares the passed characters to determine who won
@@ -137,7 +108,6 @@ void decideWinner(char play, char p1, std::string_view p1n, int& p1s, char p2, s
 }
 
 bool playAgain(char playStyle, int loops, int& currentLoop) {
-    char choice {};
     if (playStyle == '3') {
         ++currentLoop;
         if (currentLoop == loops) {
@@ -145,16 +115,30 @@ bool playAgain(char playStyle, int loops, int& currentLoop) {
         }
         return true;
     }
-    char options[] {'y','n'};
-    std::cout << "Would you like to play again?\n";
+    char input {};
+    std::vector<char> validOptions {'y','n'};
     do {
         std::cout << "Enter 'y' for Yes or 'n' for no\n";
         std::cout << "Choice: ";
-        std::cin >> choice;
-        choice = char(std::tolower(choice));
-    } while(!isValid(choice, options, sizeof(options)));
+        std::cin >> input;
+        input = char(std::tolower(input));
+    } while(!isValid(input, validOptions));
     std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
-    return choice == 'y';
+    return input == 'y';
+}
+
+std::string_view translate(char ch) {
+    switch (ch)
+        {
+        case 'r':
+            return "Rock";
+        case 'p':
+            return "Paper";
+        case 's':
+            return "Scissors";
+        default:
+            return "Unknown";
+        }
 }
 
 void printScore(std::string p1n, int p1s, std::string p2n, int p2s, int dr) {
@@ -184,10 +168,31 @@ void rpsMain() {
     int playLoops {};
     int currentLoop {0};
     std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
-    initialization(playChoice, player1Name, player2Name, playLoops);
+    if (playChoice == '3') {
+        playLoops = getLoops();
+        player1Name = "Computer 1";
+        player2Name = "Computer 2";
+    } else {
+        player1Name = getName("Player 1");
+        if (playChoice == '1') {
+            player2Name = "The Computer";
+        } else if (playChoice == '2') {
+            player2Name = getName("Player 2");
+        }
+    }
     std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
     do {
-        getInputs(playChoice, player1Name, player1Choice,player2Name ,player2Choice);
+        if (playChoice == '1') {
+            player1Choice = getPlayerInput(player1Name);
+            player2Choice = getComputerInput();
+        } else if (playChoice == '2') {
+            player1Choice = getPlayerInput(player1Name);
+            std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
+            player2Choice = getPlayerInput(player2Name);
+        } else {
+            player1Choice = getComputerInput();
+            player2Choice = getComputerInput();
+        }
         // Save some processing time if only computers are playing since it will be too fast to see anyway
         if (playChoice != '3') {
             std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
