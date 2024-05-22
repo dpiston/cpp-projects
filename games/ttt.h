@@ -1,5 +1,6 @@
 #ifndef TTT_H
     #define TTT_H
+    void screenClear();
     char tttMenu();
     void printBoard(char board[3][3]);
     void boardHelp();

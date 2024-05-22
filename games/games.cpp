@@ -3,10 +3,12 @@
 #include "ttt.h"
 #include <iostream>
 
-int main() {
-    char game {};
-    bool play {true};
-    do {
+int main()
+{
+    char game{};
+    bool play{true};
+    do
+    {
         std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
         std::cout << "Welcome to my games!\n";
         std::cout << "1) Rock, Paper, Scissors\n";
@@ -34,5 +36,5 @@ int main() {
             std::cout << "Invalid option.\n";
             break;
         }
-    } while(play);
+    } while (play);
 }

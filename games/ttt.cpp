@@ -6,10 +6,16 @@
 #include <tuple> // for std::tuple
 #include <map> // for std::map
 
+
+void screenClear()
+{
+    std::cout << "\033[2J\033[1;1H";  // ANSI escape sequence for clearing screen
+}
+
 // Main menu when launching game
 char tttMenu() {
     char choice {};
-    std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
+    screenClear();
     std::cout << "-----------------------\n";
     std::cout << "Welcome to Tic Tac Toe!\n";
     std::cout << "-----------------------\n";
@@ -23,7 +29,7 @@ char tttMenu() {
         if (choice == '1' || choice == '2' || choice == '3') {
             break;
         } else {
-            std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
+            screenClear();
             std::cout << "Please enter a valid option.\n";
         }
     }
@@ -78,7 +84,7 @@ bool isValid(char bd[3][3], char ch, char sym) {
 		std::cin.clear(); // Reset error flags in std::cin
 		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
 		std::cin.get();
-		std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
+		screenClear();
 		printBoard(bd);
 		return false;
 	} else if (ch == '0') {
@@ -240,7 +246,7 @@ void tttMain() {
 	char play {};
 	char symbol {'X'};
 	char option {tttMenu()};
-	std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
+	screenClear();
 	boardHelp();
 	do {
 		do {
@@ -249,11 +255,11 @@ void tttMain() {
 				std::cout << "Enter a space to play, or \"h\" for spot numbers\n";
 				std::cout << "Input: ";
 				std::cin >> play;
-				std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
+				screenClear();
 			} else {
 				play = '0';
 				computerMove(board, symbol);
-				std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
+				screenClear();
 			}
 		} while (!isValid(board, play, symbol));
 		symbol = (symbol == 'X') ? 'O' : 'X';
@@ -264,5 +270,5 @@ void tttMain() {
     std::cin.clear(); // Reset error flags in std::cin
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clear input buffer
     std::cin.get();
-    std::cout << "\033[2J\033[1;1H"; // ANSI escape sequence for clearing screen
+    screenClear();
 }
