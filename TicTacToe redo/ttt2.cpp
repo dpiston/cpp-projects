@@ -88,44 +88,52 @@ void TicTacToe::getPlayerMove(char symbol)
 
 bool TicTacToe::gameOver()
 {
-    bool full {true};
-    for (int i = 0; i < 3; i++)
+    // horizontal check
+    for (int i = 0; i < 3; ++i)
     {
-        for (int j = 0; j < 3; j++)
+        if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][0] == board[i][2])
         {
-            if (board[i][j] == ' ')
-            {
-                full = false;
-                break;
-            }
-            if (board[i][j] != ' ' && board[(i + 1) % 3][j] == board[i][j] && board[(i + 2) % 3][j] == board[i][j])
-            {
-                std::cout << board[i][j] << " wins!";
-                return true;
-            }
-            else if (board[i][j] != ' ' && board[i][(j + 1) % 3] == board[i][j] && board[i][(j + 2) % 3] == board[i][j])
-            {
-                std::cout << board[i][j] << " wins!";
-                return true;
-            }
-        }
-        int k {2 - i};
-        if (board[i][i] != ' ' && board[(i + 1) % 3][(i + 1) % 3] == board[i][i] && board[(i + 2) % 3][(i + 2) % 3] == board[i][i])
-        {
-            std::cout << board[i][i] << " wins!";
-            return true;
-        }
-        else if (board[i][k] != ' ' && board[(i + 1) % 3][(k + 2) % 3] == board[i][k] && board[(i + 2) % 3][(k + 1) % 3] == board[i][k])
-        {
-            std::cout << board[i][k] << " wins!";
+            std::cout << board[i][0] << " wins!";
             return true;
         }
     }
-    if (full)
+
+    // vertical check
+    for (int i = 0; i < 3; ++i)
+    {
+        if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[i][i] == board[2][i])
+        {
+            std::cout << board[0][i] << " wins!";
+            return true;
+        }
+    }
+
+    // diagonal check
+    if ((board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) || (board[2][0] != ' ' && board[2][0] == board[1][1] && board[1][1] == board[0][2]))
+    {
+        std::cout << board[1][1] << " wins!";
+        return true;
+    }
+
+    // full board check
+    bool boardFull {true};
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            if (board[i][j] != ' ')
+            {
+                boardFull = false;
+            }
+        }
+    }
+
+    if (boardFull)
     {
         std::cout << "It's a tie!";
         return true;
     }
+
     return false;
 }
 
