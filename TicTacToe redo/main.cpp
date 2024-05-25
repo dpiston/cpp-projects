@@ -1,9 +1,9 @@
-#include "TicTacToe.h"
+#include "TicTacToe.hpp"
 
 int main()
 {
     TicTacToe game;
-    char currentPlay = 'X';
+    char currentPlay{'X'};
     do
     {
         game.printBoard();

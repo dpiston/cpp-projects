@@ -1,8 +1,6 @@
 #ifndef TICTACTOE_H
     #define TICTACTOE_H
 
-    #include <iostream>
-    #include <limits>
     #include <string>
 
     class TicTacToe
@@ -27,6 +25,10 @@
         int validateInput(const std::string& prompt);
         bool isValid(int row, int col, int position);
         void scoreCounter(char winner);
+        bool rowCheck();
+        bool colCheck();
+        bool diagCheck();
+        bool isFull();
     };
 
 #endif

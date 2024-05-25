@@ -1,6 +1,8 @@
-#include "TicTacToe.h"
+#include "TicTacToe.hpp"
+#include <iostream>
 #include <limits>  // for std::numeric_limits
 #include <cctype>  // for std::toupper
+#include <string>  // for std::string
 #include <iomanip> // for std::left and std::setw
 
 // intialization of TicTacToe - sets all scores to 0 and calls clear board to create a blank 3x3 gird
@@ -91,7 +93,6 @@ void TicTacToe::getPlayerMove(char symbol)
         col = position - row * 3 - 1;
     } while (!isValid(row, col, position));
 
-    std::cout << "Row: " << row << " Col: " << col << '\n';
     board[row][col] = symbol;
 }
 
@@ -120,66 +121,78 @@ bool TicTacToe::isValid(int row, int col, int position)
 // reads the board for any game over conditions, weather it be a win or a tie
 bool TicTacToe::gameOver()
 {
-    for (int i = 0; i < 3; ++i)
+    if (rowCheck() || colCheck() || diagCheck() || isFull())
     {
-        // horizontal check
-        if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2])
-        {
-            std::cout << board[i][0] << " wins!\n";
-            scoreCounter(board[i][0]);
-            return true;
-        }
-
-        // vertical check
-        if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[1][i] == board[2][i])
-        {
-            std::cout << board[0][i] << " wins!\n";
-            scoreCounter(board[0][i]);
-            return true;
-        }
-    }
-
-    // diagonal check
-    if ((board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) || (board[2][0] != ' ' && board[2][0] == board[1][1] && board[1][1] == board[0][2]))
-    {
-        std::cout << board[1][1] << " wins!\n";
-        scoreCounter(board[1][1]);
-        return true;
-    }
-
-    // full board check
-    bool boardFull{true};
-    for (int i = 0; i < 3; ++i)
-    {
-        for (int j = 0; j < 3; ++j)
-        {
-            if (board[i][j] == ' ')
-            {
-                boardFull = false;
-            }
-        }
-    }
-
-    // if the board was full, return a tie
-    if (boardFull)
-    {
-        std::cout << "It's a tie!\n";
-        ++draw;
         return true;
     }
 
     return false;
 }
 
+bool TicTacToe::rowCheck()
+{
+    for (int i = 0; i < 3; ++i)
+    {
+        // horizontal check
+        if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2])
+        {
+            scoreCounter(board[i][0]);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool TicTacToe::colCheck()
+{
+    for (int i = 0; i < 3; ++i)
+    {
+        // horizontal check
+        if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[1][i] == board[2][i])
+        {
+            scoreCounter(board[0][i]);
+            return true;
+        }
+    }
+    return false;
+}
+
+bool TicTacToe::diagCheck()
+{
+    if ((board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) || (board[2][0] != ' ' && board[2][0] == board[1][1] && board[1][1] == board[0][2]))
+    {
+        scoreCounter(board[1][1]);
+        return true;
+    }
+    return false;
+}
+
+bool TicTacToe::isFull()
+{
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            if (board[i][j] == ' ')
+            {
+                std::cout << "It's a tie!";
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void TicTacToe::scoreCounter(char winner)
 {
+    std::cout << winner << " wins!";
     if (winner == 'X')
     {
         ++xScore;
     }
-    if (winner == 'O')
+    else
     {
-        ++oScore; 
+        ++oScore;
     }
 }
 
@@ -215,5 +228,5 @@ void TicTacToe::printScore()
     std::cout << std::left;
     std::cout << std::setw(16) << "X wins:" << xScore << '\n';
     std::cout << std::setw(16) << "O wins:" << oScore << '\n';
-    std::cout << std::setw(16) << "Draws" << ':' << draw << '\n';
+    std::cout << std::setw(16) << "Draws:" << draw << '\n';
 }
