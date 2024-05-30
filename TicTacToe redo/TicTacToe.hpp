@@ -2,16 +2,16 @@
     #define TICTACTOE_H
 
     #include <string>
+    #include <vector>
 
     class TicTacToe
     {
     public:
         TicTacToe();
-
         void printBoard();
         void getPlayerMove(char symbol);
         // void computerMove(char symbol);
-        bool gameOver();
+        bool isGameOver();
         bool playAgain();
         void printScore();
 
@@ -22,13 +22,11 @@
         int draw;
         void clearBoard();
         void printBoardKey();
-        int validateInput(const std::string& prompt);
+        template <typename T>
+        T validateInput(const std::string& prompt, const std::vector<T> &options);
         bool isValid(int row, int col, int position);
-        void scoreCounter(char winner);
-        bool rowCheck();
-        bool colCheck();
-        bool diagCheck();
-        bool isFull();
+        int evaluate();
+        bool isMovesLeft();
     };
 
 #endif

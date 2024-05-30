@@ -1,9 +1,11 @@
 #include "TicTacToe.hpp"
 #include <iostream>
-#include <limits>  // for std::numeric_limits
-#include <cctype>  // for std::toupper
-#include <string>  // for std::string
-#include <iomanip> // for std::left and std::setw
+#include <limits>    // for std::numeric_limits
+#include <cctype>    // for std::toupper
+#include <string>    // for std::string
+#include <iomanip>   // for std::left and std::setw
+#include <vector>    // for std::vector
+#include <algorithm> // for std::find
 
 // intialization of TicTacToe - sets all scores to 0 and calls clear board to create a blank 3x3 gird
 TicTacToe::TicTacToe() : xScore(0), oScore(0), draw(0)
@@ -57,14 +59,15 @@ void TicTacToe::printBoardKey()
 }
 
 // valdates user input, ensuring it was in fact an int
-int TicTacToe::validateInput(const std::string &prompt)
+template <typename T>
+T TicTacToe::validateInput(const std::string &prompt, const std::vector<T> &options)
 {
-    int input{};
+    T input{};
     while (true)
     {
         std::cout << prompt;
         std::cin >> input;
-        if (std::cin.fail() || input < 0 || input > 9)
+        if (std::cin.fail() || std::cin.peek() != '\n' || std::find(options.begin(), options.end(), input) == options.end())
         {
             std::cin.clear();
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -81,6 +84,7 @@ int TicTacToe::validateInput(const std::string &prompt)
 // prompt player to enter a move and ensures it is valid
 void TicTacToe::getPlayerMove(char symbol)
 {
+    std::vector<int> validOptions{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     int position{};
     int row{};
     int col{};
@@ -88,7 +92,7 @@ void TicTacToe::getPlayerMove(char symbol)
     do
     {
         std::cout << symbol << "'s turn!\n\n";
-        position = validateInput("Enter position (1 - 9) or 0 for board key: ");
+        position = validateInput("Enter position (1 - 9) or 0 for board key: ", validOptions);
         row = (position - 1) / 3;
         col = position - row * 3 - 1;
     } while (!isValid(row, col, position));
@@ -118,107 +122,93 @@ bool TicTacToe::isValid(int row, int col, int position)
 //     // TODO, adapt minimax formula for computer play, the goal is to have an unbeatable AI
 // }
 
-// reads the board for any game over conditions, weather it be a win or a tie
-bool TicTacToe::gameOver()
+// check if there are any moves left on the board
+bool TicTacToe::isMovesLeft()
 {
-    if (rowCheck() || colCheck() || diagCheck() || isFull())
+    for (int x = 0; x < 3; ++x)
     {
-        return true;
-    }
-
-    return false;
-}
-
-bool TicTacToe::rowCheck()
-{
-    for (int i = 0; i < 3; ++i)
-    {
-        // horizontal check
-        if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2])
+        for (int y = 0; y < 3; ++y)
         {
-            scoreCounter(board[i][0]);
-            return true;
-        }
-    }
-    return false;
-}
-
-bool TicTacToe::colCheck()
-{
-    for (int i = 0; i < 3; ++i)
-    {
-        // horizontal check
-        if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[1][i] == board[2][i])
-        {
-            scoreCounter(board[0][i]);
-            return true;
-        }
-    }
-    return false;
-}
-
-bool TicTacToe::diagCheck()
-{
-    if ((board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2]) || (board[2][0] != ' ' && board[2][0] == board[1][1] && board[1][1] == board[0][2]))
-    {
-        scoreCounter(board[1][1]);
-        return true;
-    }
-    return false;
-}
-
-bool TicTacToe::isFull()
-{
-    for (int i = 0; i < 3; ++i)
-    {
-        for (int j = 0; j < 3; ++j)
-        {
-            if (board[i][j] == ' ')
+            if (board[x][y] == ' ')
             {
-                std::cout << "It's a tie!";
-                return false;
+                return true;
             }
         }
     }
-    return true;
+    return false;
 }
 
-void TicTacToe::scoreCounter(char winner)
+// evaluate the board and return a score
+int TicTacToe::evaluate()
 {
-    std::cout << winner << " wins!";
-    if (winner == 'X')
+    // row and column check
+    for (int i = 0; i < 3; ++i)
     {
+        // check rows for victory
+        if (board[i][0] != ' ' && board[i][0] == board[i][1] && board[i][1] == board[i][2])
+        {
+            return board[i][0] == 'X' ? 10 : -10;
+        }
+
+        // check columns for victory
+        if (board[0][i] != ' ' && board[0][i] == board[1][i] && board[1][i] == board[2][i])
+        {
+            return board[0][i] == 'X' ? 10 : -10;
+        }
+    }
+
+    // check diagonals for victory
+    if (board[0][0] != ' ' && board[0][0] == board[1][1] && board[1][1] == board[2][2])
+    {
+        return board[0][0] == 'X' ? 10 : -10;
+    }
+    if (board[0][2] != ' ' && board[0][2] == board[1][1] && board[1][1] == board[2][0])
+    {
+        return board[0][2] == 'X' ? 10 : -10;
+    }
+
+    // if no winner, return 0
+    return 0;
+}
+
+// reads the board for any game over conditions, weather it be a win or a tie
+bool TicTacToe::isGameOver()
+{
+    int result{evaluate()};
+    if (result == 10)
+    {
+        std::cout << "X wins!\n\n";
         ++xScore;
+        return true;
     }
-    else
+    else if (result == -10)
     {
+        std::cout << "O wins!\n\n";
         ++oScore;
+        return true;
     }
+    else if (!isMovesLeft())
+    {
+        std::cout << "It's a tie!\n\n";
+        ++draw;
+        return true;
+    }
+
+    return false;
 }
 
 bool TicTacToe::playAgain()
 {
+    std::vector<char> vaildOptions{'Y', 'N', 'y', 'n'};
     char choice{};
-    do
+    choice = validateInput("Would you like to play again? (Y/N): ", vaildOptions);
+    if (choice == 'Y' || choice == 'y')
     {
-        std::cout << "Would you like to play again?\n";
-        std::cout << "Enter Y/N: ";
-        std::cin >> choice;
-        choice = char(std::toupper(choice));
-        if ((choice != 'Y' && choice != 'N') || std::cin.peek() != '\n')
-        {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cout << "Invalid input. Please try again.\n\n";
-        }
-        else
-        {
-            clearBoard();
-            break;
-        }
-    } while (true);
+        clearBoard();
+        return true;
+    }
 
-    return choice == 'Y';
+    return false;
 }
 
 void TicTacToe::printScore()

@@ -12,7 +12,7 @@ int main()
             game.getPlayerMove(currentPlay);
             game.printBoard();
             currentPlay = currentPlay == 'X' ? 'O' : 'X';
-        } while (!game.gameOver());
+        } while (!game.isGameOver());
     } while (game.playAgain()); 
 
     game.printScore();

@@ -1,10 +1,10 @@
 #include <iostream>
-#include <random>
+#include <cmath>
+#include <limits>
 
 int main(){
-    std::cout << "0 % 3: " << 0 % 3 << '\n';
-    std::cout << "1 % 3: " << 1 % 3 << '\n';
-    std::cout << "2 % 3: " << 2 % 3 << '\n';
-    std::cout << "3 % 3: " << 3 % 3 << '\n';
-    std::cout << "4 % 3: " << 4 % 3 << '\n';
+    float inf {INFINITY};
+    std::cout << "Infity cmath: " << inf << '\n';
+    double inf2 {std::numeric_limits<double>::infinity()};
+    std::cout << "Infinity limits: " << inf2 << '\n';
 }
