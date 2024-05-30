@@ -3,8 +3,11 @@ Some Various projects I have made or am working on in C++.
 
 ## GAMES
 A collection of different C++ files, one being the "Main Menu" while the others contain the actual games.
+
 -Rock, Paper, Scissors
+
 -Hangman
+
 -Tic Tac Toe
 
 ### TicTacToe redo
