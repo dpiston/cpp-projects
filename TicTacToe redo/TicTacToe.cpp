@@ -5,7 +5,8 @@
 #include <string>    // for std::string
 #include <iomanip>   // for std::left and std::setw
 #include <vector>    // for std::vector
-#include <algorithm> // for std::find
+#include <algorithm> // for std::find and std::max
+#include <cmath>     // for INFINITY
 
 // intialization of TicTacToe - sets all scores to 0 and calls clear board to create a blank 3x3 gird
 TicTacToe::TicTacToe() : xScore(0), oScore(0), draw(0)
@@ -45,6 +46,7 @@ void TicTacToe::printBoard()
             std::cout << "\n━━━━━━━━━━━\n";
         }
     }
+
     std::cout << "\n\n";
 }
 
@@ -58,7 +60,7 @@ void TicTacToe::printBoardKey()
     std::cout << " 7 ┃ 8 ┃ 9 \n\n";
 }
 
-// valdates user input, ensuring it was in fact an int
+// valdates user input, ensuring it was something in the included options vector
 template <typename T>
 T TicTacToe::validateInput(const std::string &prompt, const std::vector<T> &options)
 {
@@ -78,6 +80,7 @@ T TicTacToe::validateInput(const std::string &prompt, const std::vector<T> &opti
             break;
         }
     }
+
     return input;
 }
 
@@ -117,10 +120,98 @@ bool TicTacToe::isValid(int row, int col, int position)
     return true;
 }
 
-// void TicTacToe::computerMove(char symbol)
-// {
-//     // TODO, adapt minimax formula for computer play, the goal is to have an unbeatable AI
-// }
+// implementation of the minimax formula, will try every possible combination of moves from the current board and return the outcomes
+float TicTacToe::minimax(int depth, bool isMax)
+{
+    int score{evaluate()};
+
+    if (score == 10)
+    {
+        return static_cast<float>(score - depth);
+    }
+    if (score == -10)
+    {
+        return static_cast<float>(score + depth);
+    }
+    if (!isMovesLeft())
+    {
+        return 0;
+    }
+
+    if (isMax)
+    {
+        float best{-INFINITY};
+
+        for (int x = 0; x < 3; ++x)
+        {
+            for (int y = 0; y < 3; ++y)
+            {
+                if (board[x][y] == ' ')
+                {
+                    board[x][y] = 'X';
+                    best = std::max(best, minimax(depth + 1, !isMax));
+                    board[x][y] = ' ';
+                }
+            }
+        }
+
+        return best;
+    }
+    else
+    {
+        float best{INFINITY};
+
+        for (int x = 0; x < 3; ++x)
+        {
+            for (int y = 0; y < 3; ++y)
+            {
+                if (board[x][y] == ' ')
+                {
+                    board[x][y] = 'O';
+                    best = std::min(best, minimax(depth + 1, !isMax));
+                    board[x][y] = ' ';
+                }
+            }
+        }
+
+        return best;
+    }
+}
+
+// finds the best possible move for the comuter
+std::vector<int> TicTacToe::findBestMove(bool isMax)
+{
+    float bestVal{isMax ? -INFINITY : INFINITY};
+    std::vector<int> bestMove{-1, -1};
+
+    for (int x = 0; x < 3; ++x)
+    {
+        for (int y = 0; y < 3; ++y)
+        {
+            if (board[x][y] == ' ')
+            {
+                board[x][y] = isMax ? 'X' : 'O';
+                float moveVal{minimax(0, !isMax)};
+                board[x][y] = ' ';
+
+                if ((isMax && moveVal > bestVal) || (!isMax && moveVal < bestVal))
+                {
+                    bestMove[0] = x;
+                    bestMove[1] = y;
+                    bestVal = moveVal;
+                }
+            }
+        }
+    }
+
+    return bestMove;
+}
+
+void TicTacToe::computerMove(bool isMax)
+{
+    std::vector<int> move{findBestMove(isMax)};
+    board[move[0]][move[1]] = isMax ? 'X' : 'O';
+}
 
 // check if there are any moves left on the board
 bool TicTacToe::isMovesLeft()
@@ -135,6 +226,7 @@ bool TicTacToe::isMovesLeft()
             }
         }
     }
+
     return false;
 }
 
@@ -197,6 +289,7 @@ bool TicTacToe::isGameOver()
     return false;
 }
 
+// asks the player(s) if they would like to play again, then evaluates entry for valid response
 bool TicTacToe::playAgain()
 {
     std::vector<char> vaildOptions{'Y', 'N', 'y', 'n'};
@@ -211,6 +304,7 @@ bool TicTacToe::playAgain()
     return false;
 }
 
+// prints the score board at the end of the game
 void TicTacToe::printScore()
 {
     std::cout << "Thank you for playing!\n";

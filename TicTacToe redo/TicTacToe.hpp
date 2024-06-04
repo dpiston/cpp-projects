@@ -10,7 +10,7 @@
         TicTacToe();
         void printBoard();
         void getPlayerMove(char symbol);
-        // void computerMove(char symbol);
+        void computerMove(bool isMax);
         bool isGameOver();
         bool playAgain();
         void printScore();
@@ -27,6 +27,8 @@
         bool isValid(int row, int col, int position);
         int evaluate();
         bool isMovesLeft();
+        float minimax(int depth, bool isMax);
+        std::vector<int> findBestMove(bool isMax);
     };
 
 #endif
